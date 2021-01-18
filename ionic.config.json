@@ -1,0 +1,7 @@
+{
+  "name": "scalex",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "vue"
+}
