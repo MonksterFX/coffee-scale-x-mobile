@@ -11,8 +11,21 @@
           <ion-title size="large">Home</ion-title>
         </ion-toolbar>
       </ion-header>
-
-      <ExploreContainer name="Tab 1 page" />
+      <p>{{ isEnabled }}</p>
+      <p>{{ isConnected }}</p>
+      <p>{{ connectedDevice }}</p>
+      <ul>
+        <li
+          v-for="device of visibleDevices"
+          v-bind:key="device.name"
+          @click="connect(device)"
+        >
+          {{ device }}
+        </li>
+      </ul>
+      <ion-button @click="bleInit"> Initialize </ion-button>
+      <ion-button @click="bleScan"> Start Scanning </ion-button>
+      <ion-button @click="bleDisconnect"> Disconnect </ion-button>
     </ion-content>
   </ion-page>
 </template>
@@ -24,18 +37,46 @@ import {
   IonToolbar,
   IonTitle,
   IonContent,
+  IonButton,
 } from "@ionic/vue";
-import ExploreContainer from "@/components/ExploreContainer.vue";
+
+import { mapState } from "vuex";
+import * as ble from "@/lib/ble/bluetooth";
 
 export default {
   name: "Tab1",
   components: {
-    ExploreContainer,
     IonHeader,
     IonToolbar,
     IonTitle,
     IonContent,
     IonPage,
+    IonButton,
+  },
+  methods: {
+    bleInit() {
+      ble.initialize();
+    },
+    bleScan() {
+      ble.startScanning(["1801"]);
+    },
+    bleDisconnect() {
+      ble.disconnect();
+    },
+    bleConnect(device: ble.Device) {
+      ble.connectToDevice(device.address);
+    },
+  },
+  computed: {
+    supportedFunctions() {
+      return Object.keys(ble);
+    },
+    ...mapState([
+      "isEnabled",
+      "isConnected",
+      "visibleDevices",
+      "connectedDevice",
+    ]),
   },
 };
 </script>

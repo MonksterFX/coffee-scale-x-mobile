@@ -52,6 +52,9 @@
 	<string>To Pick Photos from Library</string>
 	<key>NSBluetoothAlwaysUsageDescription</key>
 	<string>Our app uses bluetooth to find, connect and transfer data between different devices</string>
+	<key>bluetooth-central
+</key>
+	<string></string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
@@ -60,6 +63,12 @@
 	<array>
 		<string>armv7</string>
 	</array>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>bluetooth-central</string>
+	</array>
+	<key>LSApplicationCategoryType</key>
+	<string></string>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
