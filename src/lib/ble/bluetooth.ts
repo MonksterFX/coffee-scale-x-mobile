@@ -55,42 +55,103 @@ export async function startScanning(services: string[] = [], timeout = -1) {
     }, console.error);
 }
 
-export function connectToDevice(deviceId: string) {
-  ble.connect({ address: deviceId }).subscribe((deviceResult) => {
+export function subscribe(
+  service: string,
+  characteristic: string,
+  callback: Function
+) {
+  return ble
+    .subscribe({
+      address: store.state.connectedDevice.address,
+      service,
+      characteristic,
+    })
+    .subscribe((notifcation) => {
+      let decoded = '';
+
+      try {
+        decoded = atob(notifcation.value);
+      } catch (error) {
+        console.error('atob conversion error', error);
+      }
+
+      // save result to store
+      store.commit('addNewValue', decoded);
+
+      // call callback if given
+      if (callback) {
+        callback(decoded);
+      }
+    }, console.error);
+}
+
+async function _disconnect(address: string) {
+  // first disconnect
+  console.log('disconnect from ', address);
+
+  return (
+    ble
+      .disconnect({ address })
+      .then(console.log)
+      .catch(console.error)
+      // then close
+      .finally(() => {
+        return ble
+          .close({ address })
+          .then(console.log)
+          .catch(console.error);
+      })
+  );
+}
+
+export async function connectToDevice(deviceId: string, force = false) {
+  // force disconnect
+  if (force) {
+    await _disconnect(deviceId).catch(console.error);
+  }
+
+  return ble.connect({ address: deviceId }).subscribe((deviceResult) => {
     store.commit(
       'connectedDevice',
       new Device({ address: deviceId, name: deviceResult.name })
     );
+
+    // scanning is energy intense stop it here!
     stopScanning();
+
+    // start subscribe - hardcoded
+    subscribe(
+      '6E400001-B5A3-F393-E0A9-E50E24DCCA9E',
+      '6E400003-B5A3-F393-E0A9-E50E24DCCA9E',
+      console.log
+    );
   }, console.error);
 }
 
-export async function disconnect() {
+export async function disconnect(services: string[] = []) {
+  // get all connected devices
   const connected = await ble.retrieveConnected();
 
+  console.log(connected, store.state.connectedDevice);
+
+  // check store for connected device
+  _disconnect(store.state.connectedDevice);
+
+  // disconnect
   for (const device of connected.devices) {
-    ble
-      .disconnect({ address: device.address })
-      .then(console.log)
-      .catch(console.error)
-      .finally(() => {
-        ble
-          .close({ address: device.address })
-          .then(console.log)
-          .catch(console.error);
-      });
+    _disconnect(device.address);
   }
 }
 
-export function checkServices(services: string[] = []) {
-  ble
+export async function checkServices(services: string[] = []) {
+  return ble
     .services({ address: store.state.connectedDevice.address, services })
     .then(console.log)
     .catch(console.error);
 }
 
-export function checkCharacteristics(service: string) {
-  ble
+export async function checkCharacteristics(service: string) {
+  return ble
     .characteristics({ address: store.state.connectedDevice.address, service })
     .then(console.log)
     .catch(console.error);
@@ -105,20 +166,6 @@ export function unsubscribe(service: string, characteristic: string) {
     })
     .then(console.log)
     .catch(console.error);
-}
-
-export function subscribe(
-  service: string,
-  characteristic: string,
-  callback: Function
-) {
-  const device = store.state.connectedDevice;
-  ble
-    .subscribe({ address: device.address, service, characteristic })
-    .subscribe((notifcation) => {
-      console.log(ble.encodedStringToBytes(notifcation.value));
-      console.log(notifcation);
-    }, console.error);
 }
 
 // inject to dom

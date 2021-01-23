@@ -2,18 +2,25 @@
   <ion-page>
     <ion-header>
       <ion-toolbar>
-        <ion-title>ScaleX</ion-title>
+        <ion-title>ScaleX Data</ion-title>
       </ion-toolbar>
     </ion-header>
     <ion-content :fullscreen="true">
       <ion-header collapse="condense">
         <ion-toolbar>
-          <ion-title size="large">ScaleX</ion-title>
+          <ion-title size="large">ScaleX Data</ion-title>
         </ion-toolbar>
       </ion-header>
-      <ion-card>Top: {{ currentValues.top }}</ion-card>
-      <ion-card>Bottom: {{ currentValues.bottom }}</ion-card>
-      <ExploreContainer name="Tab 2 page" />
+      <ion-grid>
+        <ion-row>
+          <ion-col> {{ currentValue.top }} g </ion-col>
+          <ion-col> {{ currentValue.bottom }} g </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col> {{ summary }} g </ion-col>
+          <ion-col> {{ time }} s </ion-col>
+        </ion-row>
+      </ion-grid>
     </ion-content>
   </ion-page>
 </template>
@@ -25,25 +32,40 @@ import {
   IonToolbar,
   IonTitle,
   IonContent,
-  IonCard,
+  IonGrid,
+  IonRow,
+  IonCol,
 } from "@ionic/vue";
-import ExploreContainer from "@/components/ExploreContainer.vue";
+import { defineComponent } from "vue";
+import { mapState } from "vuex";
 
-export default {
+export default defineComponent({
   name: "Tab2",
   components: {
-    ExploreContainer,
     IonHeader,
     IonToolbar,
     IonTitle,
     IonContent,
     IonPage,
-    IonCard,
+    IonGrid,
+    IonRow,
+    IonCol,
   },
   data() {
     return {
-      currentValues: { top: 0, bottom: 0 },
+      summary: -1,
+      time: 60,
     };
   },
-};
+  computed: {
+    ...mapState(["currentValue"]),
+  },
+});
 </script>
+<style scoped>
+ion-col {
+  text-align: center;
+  font-size: 2em;
+  padding: 2.5rem 0px;
+}
+</style>

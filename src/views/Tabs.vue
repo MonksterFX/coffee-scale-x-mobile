@@ -31,8 +31,9 @@ import {
   IonPage,
 } from "@ionic/vue";
 import { ellipse, square, triangle } from "ionicons/icons";
+import { defineComponent } from "vue";
 
-export default {
+export default defineComponent({
   name: "Tabs",
   components: { IonLabel, IonTabs, IonTabBar, IonTabButton, IonIcon, IonPage },
   setup() {
@@ -42,5 +43,5 @@ export default {
       triangle,
     };
   },
-};
+});
 </script>

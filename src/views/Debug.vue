@@ -6,9 +6,34 @@
       </ion-toolbar>
     </ion-header>
     <ion-content :fullscreen="true">
-      <ion-header collapse="condense"> </ion-header>
+      <ion-header collapse="condense">
+        <ion-toolbar>
+          <ion-title size="large">DEBUG SCALE</ion-title>
+        </ion-toolbar>
+      </ion-header>
+      <ion-grid>
+        <ion-row>
+          <ion-col>
+            <ion-button expand="block" size="small">Log Stream</ion-button>
+          </ion-col>
+          <ion-col>
+            <ion-button expand="block" size="small">Device Details</ion-button>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col>
+            <ion-button expand="block" size="small"
+              >Force Disconnect</ion-button
+            >
+          </ion-col>
+          <ion-col>
+            <ion-button expand="block" size="small"
+              >Mass Desctruction</ion-button
+            >
+          </ion-col>
+        </ion-row>
+      </ion-grid>
     </ion-content>
-    <ion-button @click="initializeBle">Initialize</ion-button>
   </ion-page>
 </template>
 
@@ -23,7 +48,6 @@ import {
 } from "@ionic/vue";
 
 import { defineComponent } from "vue";
-import { initialize } from "@/lib/ble/bluetooth";
 // https://github.com/don/ionic-ble-examples/blob/master/scan/src/pages/home/home.ts
 
 export default defineComponent({
@@ -35,11 +59,6 @@ export default defineComponent({
     IonContent,
     IonPage,
     IonButton,
-  },
-  methods: {
-    initializeBle() {
-      return initialize;
-    },
   },
 });
 </script>

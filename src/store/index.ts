@@ -1,4 +1,5 @@
 import { Device } from '@/lib/ble/bluetooth';
+import { Measurement } from '@/lib/ble/messages';
 import { createStore } from 'vuex';
 
 function debug(key: string, value: any) {
@@ -9,8 +10,10 @@ export default createStore({
   state: {
     isEnabled: true,
     isConnected: false,
-    visibleDevices: [] as {}[],
-    connectedDevice: {} as Device,
+    visibleDevices: [{ address: 'test', name: 'test' }] as Device[],
+    connectedDevice: { address: 'test', name: 'test' } as Device,
+    currentValue: {} as Measurement,
+    values: [] as string[],
   },
   mutations: {
     isBleEnabled(state: any, isEnabled: boolean) {
@@ -24,6 +27,16 @@ export default createStore({
     connectedDevice(state: any, device: Device) {
       state.connectedDevice = device;
       debug('connectedDevice', state.connectedDevice);
+    },
+    resetVisibleDevices(state: any) {
+      state.visibleDevices.length = 0;
+    },
+    addNewValue(state: any, value: string) {
+      state.values.push('' + value);
+      state.currentValue = new Measurement(
+        parseInt(value),
+        parseInt(value) + 1
+      );
     },
   },
   actions: {},
