@@ -6,5 +6,9 @@
     <param name="ios-package" value="BLECentralPlugin" onload="$IOS_INIT_ON_LOAD"/>
   </feature>
 
+  <feature name="BluetoothLePlugin">
+    <param name="ios-package" value="BluetoothLePlugin"/>
+  </feature>
+
   
 </widget>
