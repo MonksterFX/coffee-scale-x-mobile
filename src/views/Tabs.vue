@@ -7,7 +7,7 @@
           <ion-label>Home</ion-label>
         </ion-tab-button>
 
-        <ion-tab-button tab="app" href="/app">
+        <ion-tab-button tab="scale" href="/scale">
           <ion-icon :icon="ellipse" />
           <ion-label>App</ion-label>
         </ion-tab-button>

@@ -3,7 +3,7 @@
 
 import { BluetoothLE as ble } from '@ionic-native/bluetooth-le';
 import store from '@/store';
-import { base64ToUint8Array } from '../binary/utils';
+import { base64ToUint8Array, uint8ArrayToBase64 } from '../binary/utils';
 
 export const config = {
   request: true,
@@ -54,6 +54,23 @@ export async function startScanning(services: string[] = [], timeout = -1) {
         store.commit('addVisibleDevices', device);
       }
     }, console.error);
+}
+
+export function write(
+  service: string,
+  characteristic: string,
+  value: Uint8Array
+) {
+  const _value = uint8ArrayToBase64(value);
+  return ble
+    .write({
+      address: store.state.connectedDevice.address,
+      service,
+      characteristic,
+      value: _value,
+    })
+    .then(console.log)
+    .catch(console.error);
 }
 
 export function subscribe(

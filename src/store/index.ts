@@ -14,7 +14,8 @@ export default createStore({
     connectedDevice: {} as Device,
     currentValue: {} as Measurement,
     values: [] as string[],
-    start: 0,
+    startTime: 0,
+    stopTime: 0,
     startFlag: false,
   },
   mutations: {
@@ -33,14 +34,22 @@ export default createStore({
     resetVisibleDevices(state: any) {
       state.visibleDevices.length = 0;
     },
+    startTimer(state: any) {
+      state.startFlag = true;
+      state.stopTime = 0;
+      state.startTime = 0;
+    },
+    stopTimer(state: any) {
+      state.stopTime = state.currentValue.time;
+    },
     recievedValue(state: any, buffer: Uint8Array) {
       const measurementValue = Measurement.fromBuffer(buffer);
       state.values.push(measurementValue);
 
       // if start is triggered wait for first timestamp (no unix - missing RTC)
-      if (state.time === 0 || state.startFlag) {
+      if (state.startFlag) {
         state.startFlag = false;
-        state.start = measurementValue.time;
+        state.startTime = measurementValue.time;
       }
 
       state.currentValue = measurementValue;

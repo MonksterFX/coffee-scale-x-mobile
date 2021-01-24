@@ -14,7 +14,10 @@
       <!-- <p>{{ isEnabled }}</p>
       <p>{{ isConnected }}</p> -->
       <h1>Connected Scale</h1>
-      <device-component :device="connectedDevice"></device-component>
+      <device-component
+        v-if="connectedDevice.name"
+        :device="connectedDevice"
+      ></device-component>
       <h1>Visible Scales</h1>
       <device-component
         v-for="device of visibleDevices"
@@ -22,12 +25,15 @@
         :device="device"
         @click="bleConnect(device)"
       ></device-component>
-
-      <ion-button @click="bleInit"> Init2 </ion-button>
-      <ion-button @click="bleScan"> Start Scanning </ion-button>
-      <ion-button @click="bleDisconnect"> Disconnect </ion-button>
-      <ion-button @click="bleSubscribe"> Subscribe </ion-button>
-      <ion-button @click="bleUnSubscribe"> Unsubscribe </ion-button>
+      <h1>Controls</h1>
+      <p>(BETA: not in final version)</p>
+      <ion-button @click="bleInit" expand="full"> Init </ion-button>
+      <ion-button @click="bleScan" expand="full"> Start Scanning </ion-button>
+      <ion-button @click="bleDisconnect" expand="full"> Disconnect </ion-button>
+      <ion-button @click="bleSubscribe" expand="full"> Subscribe </ion-button>
+      <ion-button @click="bleUnSubscribe" expand="full">
+        Unsubscribe
+      </ion-button>
     </ion-content>
   </ion-page>
 </template>

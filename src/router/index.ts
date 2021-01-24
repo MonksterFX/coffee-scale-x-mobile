@@ -17,11 +17,11 @@ const routes: Array<RouteRecordRaw> = [
       },
       {
         path: 'home',
-        component: () => import('@/views/Tab1.vue'),
+        component: () => import('@/views/Home.vue'),
       },
       {
-        path: 'app',
-        component: () => import('@/views/Tab2.vue'),
+        path: 'scale',
+        component: () => import('@/views/Scale.vue'),
       },
       {
         path: 'debug',
