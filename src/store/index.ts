@@ -10,10 +10,12 @@ export default createStore({
   state: {
     isEnabled: true,
     isConnected: false,
-    visibleDevices: [{ address: 'test', name: 'test' }] as Device[],
-    connectedDevice: { address: 'test', name: 'test' } as Device,
+    visibleDevices: [] as Device[],
+    connectedDevice: {} as Device,
     currentValue: {} as Measurement,
     values: [] as string[],
+    start: 0,
+    startFlag: false,
   },
   mutations: {
     isBleEnabled(state: any, isEnabled: boolean) {
@@ -31,12 +33,17 @@ export default createStore({
     resetVisibleDevices(state: any) {
       state.visibleDevices.length = 0;
     },
-    addNewValue(state: any, value: string) {
-      state.values.push('' + value);
-      state.currentValue = new Measurement(
-        parseInt(value),
-        parseInt(value) + 1
-      );
+    recievedValue(state: any, buffer: Uint8Array) {
+      const measurementValue = Measurement.fromBuffer(buffer);
+      state.values.push(measurementValue);
+
+      // if start is triggered wait for first timestamp (no unix - missing RTC)
+      if (state.time === 0 || state.startFlag) {
+        state.startFlag = false;
+        state.start = measurementValue.time;
+      }
+
+      state.currentValue = measurementValue;
     },
   },
   actions: {},

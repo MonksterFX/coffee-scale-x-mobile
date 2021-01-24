@@ -23,7 +23,7 @@
         @click="bleConnect(device)"
       ></device-component>
 
-      <ion-button @click="bleInit"> Initialize </ion-button>
+      <ion-button @click="bleInit"> Init2 </ion-button>
       <ion-button @click="bleScan"> Start Scanning </ion-button>
       <ion-button @click="bleDisconnect"> Disconnect </ion-button>
       <ion-button @click="bleSubscribe"> Subscribe </ion-button>
@@ -86,8 +86,7 @@ export default defineComponent({
       await ble.checkCharacteristics("6E400001-B5A3-F393-E0A9-E50E24DCCA9E");
       await ble.subscribe(
         "6E400001-B5A3-F393-E0A9-E50E24DCCA9E",
-        "6E400003-B5A3-F393-E0A9-E50E24DCCA9E",
-        console.info
+        "6E400003-B5A3-F393-E0A9-E50E24DCCA9E"
       );
     },
     bleUnSubscribe() {

@@ -3,6 +3,7 @@
 
 import { BluetoothLE as ble } from '@ionic-native/bluetooth-le';
 import store from '@/store';
+import { base64ToUint8Array } from '../binary/utils';
 
 export const config = {
   request: true,
@@ -58,7 +59,7 @@ export async function startScanning(services: string[] = [], timeout = -1) {
 export function subscribe(
   service: string,
   characteristic: string,
-  callback: Function
+  callback: Function | null = null
 ) {
   return ble
     .subscribe({
@@ -67,20 +68,22 @@ export function subscribe(
       characteristic,
     })
     .subscribe((notifcation) => {
-      let decoded = '';
+      let buffer: Uint8Array;
 
+      // values are base64 encoded
       try {
-        decoded = atob(notifcation.value);
+        buffer = base64ToUint8Array(notifcation.value);
       } catch (error) {
         console.error('atob conversion error', error);
+        return;
       }
 
       // save result to store
-      store.commit('addNewValue', decoded);
+      store.commit('recievedValue', buffer);
 
       // call callback if given
       if (callback) {
-        callback(decoded);
+        callback(buffer);
       }
     }, console.error);
 }

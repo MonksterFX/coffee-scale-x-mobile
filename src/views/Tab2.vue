@@ -13,14 +13,21 @@
       </ion-header>
       <ion-grid>
         <ion-row>
-          <ion-col> {{ currentValue.top }} g </ion-col>
-          <ion-col> {{ currentValue.bottom }} g </ion-col>
+          <ion-col> {{ currentValue.top.toFixed(2) }} g </ion-col>
+          <ion-col> {{ currentValue.bottom.toFixed(2) }} g </ion-col>
         </ion-row>
         <ion-row>
-          <ion-col> {{ summary }} g </ion-col>
-          <ion-col> {{ time }} s </ion-col>
+          <ion-col>
+            {{ (currentValue.top * 3 + currentValue.bottom).toFixed(2) }} g
+          </ion-col>
+          <ion-col>
+            {{ ((currentValue.time - start) / 1000).toFixed(2) }} s
+          </ion-col>
         </ion-row>
       </ion-grid>
+      <ion-button expand="block" color="success"> Start </ion-button>
+      <ion-button expand="block" color="danger"> Stop </ion-button>
+      <ion-button expand="block"> Tare </ion-button>
     </ion-content>
   </ion-page>
 </template>
@@ -58,7 +65,7 @@ export default defineComponent({
     };
   },
   computed: {
-    ...mapState(["currentValue"]),
+    ...mapState(["currentValue", "start"]),
   },
 });
 </script>
