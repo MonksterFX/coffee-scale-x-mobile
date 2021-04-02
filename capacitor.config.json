@@ -1,5 +1,5 @@
 {
-  "appId": "io.ionic.starter",
+  "appId": "dev.mrmonk.scalex",
   "appName": "scalex",
   "bundledWebRuntime": false,
   "npmClient": "npm",
