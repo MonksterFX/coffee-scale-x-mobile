@@ -8,7 +8,7 @@
     <ion-content :fullscreen="true">
       <ion-header collapse="condense">
         <ion-toolbar>
-          <ion-title size="large">Home</ion-title>
+          <ion-title size="large">Home2</ion-title>
         </ion-toolbar>
       </ion-header>
       <!-- <p>{{ isEnabled }}</p>
@@ -51,7 +51,7 @@ import {
 import { mapState } from "vuex";
 import * as ble from "@/lib/ble/bluetooth";
 import { defineComponent } from "vue";
-
+import { SERVICE_UUID, READ_CHAR_UUID, WRITE_CHAR_UUID } from "@/lib/const";
 import DeviceComponent from "@/components/DeviceComponent.vue";
 
 export default defineComponent({
@@ -75,10 +75,10 @@ export default defineComponent({
       ble.initialize();
     },
     bleScan() {
-      ble.startScanning(["1801"]);
+      ble.startScanning([SERVICE_UUID]);
     },
     bleDisconnect() {
-      ble.disconnect(["1801", "6E400001-B5A3-F393-E0A9-E50E24DCCA9E"]);
+      ble.disconnect([SERVICE_UUID]);
     },
     bleConnect(device: ble.Device) {
       console.log(device);
@@ -88,18 +88,12 @@ export default defineComponent({
       console.log("push data", value);
     },
     async bleSubscribe() {
-      await ble.checkServices();
-      await ble.checkCharacteristics("6E400001-B5A3-F393-E0A9-E50E24DCCA9E");
-      await ble.subscribe(
-        "6E400001-B5A3-F393-E0A9-E50E24DCCA9E",
-        "6E400003-B5A3-F393-E0A9-E50E24DCCA9E"
-      );
+      await ble.checkServices([SERVICE_UUID]);
+      await ble.checkCharacteristics(READ_CHAR_UUID);
+      await ble.subscribe(SERVICE_UUID, READ_CHAR_UUID);
     },
     bleUnSubscribe() {
-      ble.unsubscribe(
-        "6E400001-B5A3-F393-E0A9-E50E24DCCA9E",
-        "6E400003-B5A3-F393-E0A9-E50E24DCCA9E"
-      );
+      ble.unsubscribe(SERVICE_UUID, READ_CHAR_UUID);
     },
   },
   computed: {

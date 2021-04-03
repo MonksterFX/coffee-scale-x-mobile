@@ -1,9 +1,10 @@
 // https://github.com/don/cordova-plugin-ble-central#advertising-data
 // https://github.com/don/cordova-plugin-ble-central/blob/master/examples/rfduinoLedButton/www/js/index.js
 
-import { BluetoothLE as ble } from '@ionic-native/bluetooth-le';
 import store from '@/store';
-import { base64ToUint8Array, uint8ArrayToBase64 } from '../binary/utils';
+import { BleClient } from '@capacitor-community/bluetooth-le';
+import { base64ToUint8Array, uint8ArrayToBase64 } from '@/lib/binary/utils';
+import { SERVICE_UUID, READ_CHAR_UUID, WRITE_CHAR_UUID } from '@/lib/const';
 
 export const config = {
   request: true,
@@ -55,7 +56,7 @@ export async function startScanning(services: string[] = [], timeout = -1) {
       }
     }, console.error);
 }
-
+// bluetoothle.stringToBytes("hallo welt");
 export function write(
   service: string,
   characteristic: string,
@@ -140,11 +141,7 @@ export async function connectToDevice(deviceId: string, force = false) {
     stopScanning();
 
     // start subscribe - hardcoded
-    subscribe(
-      '6E400001-B5A3-F393-E0A9-E50E24DCCA9E',
-      '6E400003-B5A3-F393-E0A9-E50E24DCCA9E',
-      console.log
-    );
+    subscribe(SERVICE_UUID, READ_CHAR_UUID, console.log);
   }, console.error);
 }
 
@@ -189,7 +186,8 @@ export function unsubscribe(service: string, characteristic: string) {
 }
 
 // inject to dom
-// (window as any).ble = ble;
+
+(window as any).ble2 = { BleClient, exec: exec };
 (window as any).bleM = {
   initialize,
   startScanning,
@@ -200,4 +198,5 @@ export function unsubscribe(service: string, characteristic: string) {
   unsubscribe,
   checkServices,
   checkCharacteristics,
+  write,
 };

@@ -12,6 +12,7 @@
     "debug-ios": "ionic cap run ios -l --external"
   },
   "dependencies": {
+    "@capacitor-community/bluetooth-le": "^0.5.1",
     "@capacitor/core": "2.4.6",
     "@capacitor/ios": "^2.4.7",
     "@ionic-native/ble": "^5.31.1",
