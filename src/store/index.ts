@@ -1,5 +1,5 @@
-import { Device } from '@/lib/ble/bluetooth';
 import { Measurement } from '@/lib/ble/messages';
+import { ScanResult } from '@capacitor-community/bluetooth-le';
 import { createStore } from 'vuex';
 
 function debug(key: string, value: any) {
@@ -10,8 +10,8 @@ export default createStore({
   state: {
     isEnabled: true,
     isConnected: false,
-    visibleDevices: [] as Device[],
-    connectedDevice: {} as Device,
+    visibleDevices: [] as ScanResult[],
+    connectedDevice: {} as ScanResult,
     currentValue: {} as Measurement,
     values: [] as string[],
     startTime: 0,
@@ -23,12 +23,14 @@ export default createStore({
       state.isEnabled = isEnabled;
       debug('isEnabled', state.isEnabled);
     },
-    addVisibleDevices(state: any, devices: any[] = []) {
+    addVisibleDevices(state: any, devices: ScanResult[] = []) {
       state.visibleDevices = state.visibleDevices.concat([devices]);
       debug('visibleDevices', state.visibleDevices);
     },
-    connectedDevice(state: any, device: Device) {
-      state.connectedDevice = device;
+    connectedDevice(state: any, deviceId) {
+      state.connectedDevice = state.visibleDevices.filter(
+        (x: ScanResult) => x.device.deviceId === deviceId
+      )[0];
       debug('connectedDevice', state.connectedDevice);
     },
     resetVisibleDevices(state: any) {
@@ -42,8 +44,11 @@ export default createStore({
     stopTimer(state: any) {
       state.stopTime = state.currentValue.time;
     },
-    recievedValue(state: any, buffer: Uint8Array) {
+    recievedValue(state: any, buffer: ArrayBuffer) {
       const measurementValue = Measurement.fromBuffer(buffer);
+
+      console.log('current value', measurementValue);
+
       state.values.push(measurementValue);
 
       // if start is triggered wait for first timestamp (no unix - missing RTC)

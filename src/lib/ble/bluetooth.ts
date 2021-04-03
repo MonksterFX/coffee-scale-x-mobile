@@ -1,128 +1,74 @@
-// https://github.com/don/cordova-plugin-ble-central#advertising-data
-// https://github.com/don/cordova-plugin-ble-central/blob/master/examples/rfduinoLedButton/www/js/index.js
-
+// Plugin Doc: https: www.npmjs.com/package/@capacitor-community/bluetooth-le
 import store from '@/store';
-import { BleClient } from '@capacitor-community/bluetooth-le';
-import { base64ToUint8Array, uint8ArrayToBase64 } from '@/lib/binary/utils';
+import {
+  BleClient,
+  hexStringToDataView,
+} from '@capacitor-community/bluetooth-le';
+
+// constants
 import { SERVICE_UUID, READ_CHAR_UUID, WRITE_CHAR_UUID } from '@/lib/const';
 
-export const config = {
-  request: true,
-  statusReceiver: false,
-  restoreKey: 'bluetoothleplugin',
-};
-
-export class Device {
-  readonly address: string;
-  readonly name: string;
-
-  constructor(device: Device) {
-    this.address = device.address;
-    this.name = device.name;
-  }
+export enum SCALE_COMMAND {
+  TARE = 'c0 00',
+  START = 'c1 00',
+  STOP = 'c2 00',
+  CALIBRATION = 'c3 00',
 }
 
 export function initialize() {
-  console.log('initialize');
-  ble.initialize(config).subscribe(
-    (state) => store.commit('isBleEnabled', state.status),
-    () => store.commit('isBleEnabled', false)
-  );
+  console.log('BLE::initialize');
+  // TODO: split isBleEnabled and initialized
+  BleClient.initialize()
+    .then(() => store.commit('isBleEnabled', true))
+    .catch(() => store.commit('isBleEnabled', false));
 }
 
 export async function stopScanning() {
-  return ble
-    .stopScan()
-    .then(console.log)
-    .catch(console.error);
+  console.log('BLE::stop scanning');
+  return BleClient.stopLEScan();
 }
 
 export async function startScanning(services: string[] = [], timeout = -1) {
   await stopScanning();
+  console.log('BLE::start scanning');
 
   // reset devices
   store.commit('resetVisibleDevices');
 
-  return ble
-    .startScan({ services, allowDuplicates: false })
-    .subscribe((result) => {
-      console.log(result);
-      const device = new Device({
-        address: result.address,
-        name: (result.advertisement as any)?.locaName || result.name,
-      });
-      if (device.address) {
-        store.commit('addVisibleDevices', device);
-      }
-    }, console.error);
+  return BleClient.requestLEScan({ services }, (result) => {
+    store.commit('addVisibleDevices', result);
+  });
 }
+
 // bluetoothle.stringToBytes("hallo welt");
-export function write(
-  service: string,
-  characteristic: string,
-  value: Uint8Array
-) {
-  const _value = uint8ArrayToBase64(value);
-  return ble
-    .write({
-      address: store.state.connectedDevice.address,
-      service,
-      characteristic,
-      value: _value,
-    })
-    .then(console.log)
-    .catch(console.error);
-}
-
-export function subscribe(
-  service: string,
-  characteristic: string,
-  callback: Function | null = null
-) {
-  return ble
-    .subscribe({
-      address: store.state.connectedDevice.address,
-      service,
-      characteristic,
-    })
-    .subscribe((notifcation) => {
-      let buffer: Uint8Array;
-
-      // values are base64 encoded
-      try {
-        buffer = base64ToUint8Array(notifcation.value);
-      } catch (error) {
-        console.error('atob conversion error', error);
-        return;
-      }
-
-      // save result to store
-      store.commit('recievedValue', buffer);
-
-      // call callback if given
-      if (callback) {
-        callback(buffer);
-      }
-    }, console.error);
-}
-
-async function _disconnect(address: string) {
-  // first disconnect
-  console.log('disconnect from ', address);
-
-  return (
-    ble
-      .disconnect({ address })
-      .then(console.log)
-      .catch(console.error)
-      // then close
-      .finally(() => {
-        return ble
-          .close({ address })
-          .then(console.log)
-          .catch(console.error);
-      })
+export async function sendCommand(cmd: SCALE_COMMAND) {
+  await BleClient.write(
+    store.state.connectedDevice.device.deviceId,
+    SERVICE_UUID,
+    WRITE_CHAR_UUID,
+    hexStringToDataView(cmd)
   );
+}
+
+export async function subscribe(callback: Function | null = null) {
+  await BleClient.startNotifications(
+    store.state.connectedDevice.device.deviceId,
+    SERVICE_UUID,
+    READ_CHAR_UUID,
+    (value) => {
+      store.commit('recievedValue', value.buffer);
+
+      if (callback) {
+        callback(value);
+      }
+    }
+  );
+}
+
+async function _disconnect(deviceId: string) {
+  // first disconnect
+  console.log('BLE::disconnect from ', deviceId);
+  BleClient.disconnect(deviceId);
 }
 
 export async function connectToDevice(deviceId: string, force = false) {
@@ -131,64 +77,39 @@ export async function connectToDevice(deviceId: string, force = false) {
     await _disconnect(deviceId).catch(console.error);
   }
 
-  return ble.connect({ address: deviceId }).subscribe((deviceResult) => {
-    store.commit(
-      'connectedDevice',
-      new Device({ address: deviceId, name: deviceResult.name })
-    );
+  await BleClient.connect(deviceId, (closingDevice) => {
+    console.log(`BLE::device closed connection - ${closingDevice}`);
+  }).then(() => {
+    store.commit('connectedDevice', deviceId);
+  });
 
-    // scanning is energy intense stop it here!
-    stopScanning();
-
-    // start subscribe - hardcoded
-    subscribe(SERVICE_UUID, READ_CHAR_UUID, console.log);
-  }, console.error);
+  // subscribe after connection
+  // subscribe();
 }
 
 export async function disconnect(services: string[] = []) {
-  // get all connected devices
-  const connected = await ble.retrieveConnected();
-
-  console.log(connected, store.state.connectedDevice);
-
   // check store for connected device
-  _disconnect(store.state.connectedDevice);
-
-  // disconnect
-  for (const device of connected.devices) {
-    _disconnect(device.address);
-  }
+  _disconnect('F56015E3-14C4-0A1B-62A3-CA47B2E56AC2');
 }
 
-export async function checkServices(services: string[] = []) {
-  return ble
-    .services({ address: store.state.connectedDevice.address, services })
-    .then(console.log)
-    .catch(console.error);
+export async function unsubscribe() {
+  return BleClient.stopNotifications(
+    store.state.connectedDevice.device.deviceId,
+    SERVICE_UUID,
+    READ_CHAR_UUID
+  );
 }
 
+// TODO: utility functions
 export async function checkCharacteristics(service: string) {
-  return ble
-    .characteristics({ address: store.state.connectedDevice.address, service })
-    .then(console.log)
-    .catch(console.error);
+  return null;
 }
-
-export function unsubscribe(service: string, characteristic: string) {
-  ble
-    .unsubscribe({
-      address: store.state.connectedDevice.address,
-      service,
-      characteristic,
-    })
-    .then(console.log)
-    .catch(console.error);
+export async function checkServices(services: string[] = []) {
+  return null;
 }
 
 // inject to dom
-
-(window as any).ble2 = { BleClient, exec: exec };
-(window as any).bleM = {
+(window as any).BLE = {
   initialize,
   startScanning,
   stopScanning,
@@ -198,5 +119,5 @@ export function unsubscribe(service: string, characteristic: string) {
   unsubscribe,
   checkServices,
   checkCharacteristics,
-  write,
+  sendCommand,
 };

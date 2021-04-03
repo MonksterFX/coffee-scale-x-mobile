@@ -1,5 +1,4 @@
-import { Device } from '@ionic-native/bluetooth-le';
-import { createStore } from 'vuex';
+import { ScanResult } from '@capacitor-community/bluetooth-le';
 
 function debug(key: string, value: any) {
   console.info(`ble state changed | ${key}::${JSON.stringify(value)}`);
@@ -10,7 +9,7 @@ export default {
     isEnabled: true,
     isConnected: false,
     visibleDevices: [] as {}[],
-    connectedDevice: {} as Device,
+    connectedDevice: {} as ScanResult,
   }),
   mutations: {
     isBleEnabled(state: any, isEnabled: boolean) {
@@ -21,7 +20,7 @@ export default {
       state.visibleDevices = state.visibleDevices.concat([devices]);
       debug('visibleDevices', state.visibleDevices);
     },
-    connectedDevice(state: any, device: Device) {
+    connectedDevice(state: any, device: ScanResult) {
       state.connectedDevice = device;
       debug('connectedDevice', state.connectedDevice);
     },

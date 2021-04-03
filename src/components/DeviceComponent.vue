@@ -1,7 +1,7 @@
 <template>
   <ion-card>
-    <ion-card-header>{{ device.name }}</ion-card-header>
-    <ion-card-content>{{ device.address }}</ion-card-content>
+    <ion-card-header>{{ device.localName }}</ion-card-header>
+    <ion-card-content>{{ device.device.deviceId }}</ion-card-content>
   </ion-card>
 </template>
 

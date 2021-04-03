@@ -29,10 +29,15 @@ export class Measurement extends Message {
     this.bottom = bottom;
   }
 
-  static fromBuffer(buffer: Uint8Array) {
-    const time = bufferToUint32(buffer.slice(1, 5));
-    const top = bufferToFloat32(buffer.slice(5, 9));
-    const bottom = bufferToFloat32(buffer.slice(9, 14));
+  static fromBuffer(buffer: ArrayBuffer) {
+    const _buffer = new Uint8Array(buffer);
+
+    console.log(_buffer, buffer);
+
+    const time = bufferToUint32(_buffer.slice(1, 5));
+    const top = bufferToFloat32(_buffer.slice(5, 9));
+    const bottom = bufferToFloat32(_buffer.slice(9, 14));
+
     return new Measurement(time, top, bottom);
   }
 }

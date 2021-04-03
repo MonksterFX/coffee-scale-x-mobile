@@ -18,7 +18,7 @@
         </ion-row>
         <ion-row>
           <ion-col>
-            {{ toFixed(currentValue.top * 3 + currentValue.bottom, 2) }} g
+            {{ toFixed(currentValue.top + currentValue.bottom, 2) }} g
           </ion-col>
           <ion-col> {{ elapsedTime }} s </ion-col>
         </ion-row>
@@ -35,7 +35,7 @@
 </template>
 
 <script lang="ts">
-import { write } from "@/lib/ble/bluetooth";
+import { sendCommand, SCALE_COMMAND } from "@/lib/ble/bluetooth";
 import {
   IonPage,
   IonHeader,
@@ -69,28 +69,14 @@ export default defineComponent({
     },
     startTimer() {
       this.$store.commit("startTimer");
-      write(
-        "6E400001-B5A3-F393-E0A9-E50E24DCCA9E",
-        "6E400002-B5A3-F393-E0A9-E50E24DCCA9E",
-        new Uint8Array([0xc1, 0x00])
-      );
+      sendCommand(SCALE_COMMAND.START);
     },
     stopTimer() {
       this.$store.commit("stopTimer");
-      // todo to libary for scale
-      write(
-        "6E400001-B5A3-F393-E0A9-E50E24DCCA9E",
-        "6E400002-B5A3-F393-E0A9-E50E24DCCA9E",
-        new Uint8Array([0xc2, 0x00])
-      );
+      sendCommand(SCALE_COMMAND.STOP);
     },
     tare() {
-      // todo to libary for scale
-      write(
-        "6E400001-B5A3-F393-E0A9-E50E24DCCA9E",
-        "6E400002-B5A3-F393-E0A9-E50E24DCCA9E",
-        new Uint8Array([0xc0, 0x00])
-      );
+      sendCommand(SCALE_COMMAND.TARE);
     },
   },
   computed: {
